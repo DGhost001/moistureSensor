@@ -23,7 +23,7 @@ static uint8_t receiveChar( uint8_t c )
     uint8_t result = c;
 
     if(result == 0x7f) {
-        while(!twiCharAvailable()) {}
+        while(!twiCharAvailable()) { twiSleep(); }
         result = twiReceiveChar() ^ 0x20;
     }
 
@@ -56,7 +56,7 @@ bool hdlcReceiveBuffer(void *const buffer, size_t const bufferSize)
 
     while(1)
     {
-        while(!twiCharAvailable()) {}
+        while(!twiCharAvailable()) { twiSleep(); }
 
         uint8_t data = twiReceiveChar();
 

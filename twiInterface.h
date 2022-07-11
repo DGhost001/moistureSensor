@@ -27,4 +27,9 @@ char twiReceiveChar( void );
  */
 void twiInitialize(uint8_t);
 
+/**
+ * @brief twiSleep will enter IDLE, if USI allows it right now
+ */
+void twiSleep( void );
+
 #endif

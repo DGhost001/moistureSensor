@@ -2,6 +2,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/sleep.h>
 #include <util/twi.h>
 #include <stdint.h>
 
@@ -35,7 +36,7 @@ struct Buffer{
 static struct Buffer rxBuffer_;
 static struct Buffer txBuffer_;
 
-static enum TwiStatus internalState_;
+static volatile enum TwiStatus internalState_;
 static uint8_t ownAddress_;
 
 static void usiSetUsIsr(unsigned const bits)
@@ -230,6 +231,7 @@ ISR(USI_OVF_vect)
     {
         if(dataByte) //We received an NACK
         {
+            internalState_ = twiWaitForStart;
             usiSetToStartCondition(); //Go into start condition again ...
             break;
         }
@@ -261,5 +263,15 @@ ISR(USI_OVF_vect)
         internalState_ = twiWaitForStart;
         usiSetToStartCondition();
         break;
+    }
+}
+
+
+void twiSleep( void )
+{
+    if(internalState_ == twiWaitForStart) {
+        /* We need to keep the timers running but halt the CPU */
+        set_sleep_mode(SLEEP_MODE_IDLE);
+        sleep_mode();
     }
 }
