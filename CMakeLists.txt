@@ -6,6 +6,11 @@ include_directories(${PROJECT_SOURCE_DIR})
 SET(SOURCE
     main.c
     twiInterface.c
+    twiInterface.h
+    crc16.c
+    crc16.h
+    hdlc.c
+    hdlc.h
 )
 
 SET(HEADER
