@@ -112,14 +112,23 @@ int main( void )
                 break;
             }
 
-            case 1: //Request a moisture measurement ...
+            case 1: //Request id
+            {
+                commandBuffer.parameter = (1<<8)| //FW Version 1
+                                          (1<<1)| //Temperature Sensor
+                                          (1<<0); //Humidity Sensor
+                hdlcSendBuffer(&commandBuffer, sizeof(commandBuffer));
+                break;
+            }
+
+            case 2: //Request a moisture measurement ...
             {
                 commandBuffer.parameter = getHumidityReading();
                 hdlcSendBuffer(&commandBuffer, sizeof(commandBuffer));
                 break;
             }
 
-            case 2: //Request a temperature measurement ...
+            case 3: //Request a temperature measurement ...
             {
                 commandBuffer.parameter = getTemperatureReading();
                 hdlcSendBuffer(&commandBuffer, sizeof(commandBuffer));
