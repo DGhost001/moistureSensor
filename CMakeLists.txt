@@ -5,6 +5,7 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 SET(SOURCE
     main.c
+    twiInterface.c
 )
 
 SET(HEADER
