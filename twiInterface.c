@@ -5,6 +5,7 @@
 #include <avr/sleep.h>
 #include <util/twi.h>
 #include <stdint.h>
+#include <string.h>
 
 #define SDA DDB0
 #define SCL DDB2
@@ -94,19 +95,19 @@ static void usiSetToStartCondition( void )
 {
     usiOutput(false);
     usiWaitForStart();
-    usiSetUsIsr(8);
+    usiSetUsIsr(0xf);
 }
 
 static void usiSetToSendData( void )
 {
     usiOutput(true);
-    usiSetUsIsr(8);
+    usiSetUsIsr(0xf);
 }
 
 static void usiSetToReadData( void )
 {
     usiOutput(false);
-    usiSetUsIsr(8);
+    usiSetUsIsr(0xf);
 }
 
 static unsigned next(unsigned i)
@@ -149,6 +150,9 @@ void twiInitialize(uint8_t const address)
 {
     internalState_ = twiWaitForStart;
     ownAddress_ = address;
+
+    memset(&rxBuffer_,0,sizeof(rxBuffer_));
+    memset(&txBuffer_,0,sizeof(txBuffer_));
 
     PORTB |= (1<<SCL) | (1<<SDA); //Set SCL and SDA to high
     DDRB  |= (1<<SCL);            //Set SCL to Output
@@ -243,12 +247,15 @@ ISR(USI_OVF_vect)
         {
             USIDR = txBuffer_.buffer[txBuffer_.read];
             txBuffer_.read = next(txBuffer_.read);
-            internalState_ = twiRequestAck;
-            usiSetToSendData();
         } else {
-            internalState_ = twiWaitForStart;
-            usiSetToStartCondition();
+            USIDR = 0;
+/*            internalState_ = twiWaitForStart;
+            usiSetToStartCondition();*/
         }
+
+        internalState_ = twiRequestAck;
+        usiSetToSendData();
+
         break;
     }
 

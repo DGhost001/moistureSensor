@@ -8,7 +8,7 @@ static bool sendChar(uint8_t const c)
     bool result;
     if(c == 0x7e || c == 0x7f)
     {
-        result = twiSendChar(0x7e);
+        result = twiSendChar(0x7f);
         result = result && twiSendChar(c ^0x20);
     } else
     {

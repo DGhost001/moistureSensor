@@ -43,3 +43,5 @@ add_custom_target(disasm avr-objdump -DS -z ${EXECUTABLE} 2>&1 > ${EXECUTABLE}.S
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                   BYPRODUCTS ${EXECUTABLE}.S
                   )
+
+add_subdirectory(uartBridge)
