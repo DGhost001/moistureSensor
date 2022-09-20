@@ -11,6 +11,7 @@ SET(SOURCE
     crc16.h
     hdlc.c
     hdlc.h
+    settings.c
 )
 
 SET(HEADER
@@ -32,7 +33,7 @@ add_custom_command(TARGET ${EXECUTABLE} POST_BUILD
     )
 
 add_custom_target(flash avr-objcopy -j .text -j .data -O ihex ${EXECUTABLE} ${EXECUTABLE}.ihex
-                  COMMAND avrdude -c stk500 -P /dev/ttyUSB0 -p t45 -U flash:w:${EXECUTABLE}.ihex:i
+                  COMMAND avrdude -c stk500 -P /dev/ttyUSB0 -p t45 -U lfuse:w:0x62:m -U hfuse:w:0xdd:m -U efuse:w:0xff:m -U flash:w:${EXECUTABLE}.ihex:i
                   DEPENDS ${EXECUTABLE}
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                   BYPRODUCTS ${EXECUTABLE}.ihex

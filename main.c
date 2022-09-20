@@ -3,6 +3,7 @@
 
 #include "twiInterface.h"
 #include "hdlc.h"
+#include "settings.h"
 
 struct TelemetryCommand {
     uint8_t cmdId;
@@ -95,7 +96,18 @@ int main( void )
     setupClockPrescaler();
     setupPortBConfiguration();
     setupTimer0();
-    twiInitialize(1);
+
+    /* Try to load the settings */
+    struct Settings * settings = loadSettings();
+    /* If it fails, create a new set of settings */
+
+    if(!settings || settings->address == 0 || settings->address > 127) {
+        settings = newSettings();
+        settings->address = 1;
+        saveSettings(); /* store them to the EEPROM, so that next time loading does not fail */
+    }
+
+    twiInitialize(settings->address);
     setupADC();
     setupPowerSave();
     sei();
@@ -133,6 +145,22 @@ int main( void )
                 commandBuffer.parameter = getTemperatureReading();
                 hdlcSendBuffer(&commandBuffer, sizeof(commandBuffer));
                 break;
+            }
+            case 4: // Request an update of the client address ...
+            {
+                uint8_t const newAddress = commandBuffer.parameter & 0x7f;
+                uint8_t const oldAddress = (commandBuffer.parameter >> 8) & 0x7f;
+
+                if(newAddress > 0 && oldAddress == settings->address) {
+                    settings->address = newAddress;
+                    commandBuffer.parameter = 0;
+
+                    saveSettings();
+                } else {
+                    commandBuffer.parameter = oldAddress != settings->address ? 1 : 2;
+                }
+
+                hdlcSendBuffer(&commandBuffer, sizeof(commandBuffer));
             }
 
             default:
