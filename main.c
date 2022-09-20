@@ -49,7 +49,7 @@ static uint16_t getHumidityReading( void )
 {
     uint16_t result = 0;
 
-    ADMUX = 0x02; //Select PB4 (ADC2) and internal VCC Vref
+    ADMUX = 0x03; //Select PB3 (ADC3) and internal VCC Vref
     ADCSRA |= (1<<ADEN); //Enable the ADC
 
     for(unsigned i = 0; i<16; ++i) {
